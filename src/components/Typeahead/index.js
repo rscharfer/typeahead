@@ -1,15 +1,29 @@
 import * as React from "react";
 
+const actions = {
+  INPUT_VAL_CHANGE: "INPUT_VAL_CHANGE",
+  SUGGESTION_SELECTED: "SUGGESTION_SELECTED"
+};
+
 const reducer = (state, action) => {
   switch (action.type) {
-    case "INPUT_VAL_CHANGE": {
-      const regEx = new RegExp(`^${action.value}`, "i");
+    case actions.INPUT_VAL_CHANGE: {
+      const regEx = new RegExp(`^${action.inputValue}`, "i");
+
       return {
         ...state,
-        suggestions: action.value
+        suggestions: action.inputValue
           ? state.initialList.filter((suggestion) => regEx.test(suggestion))
           : [],
-        inputValue: action.value
+        inputValue: action.inputValue,
+        suggestionsShown: true
+      };
+    }
+    case actions.SUGGESTION_SELECTED: {
+      return {
+        ...state,
+        suggestionsShown: false,
+        inputValue: action.selectionValue
       };
     }
     default:
@@ -18,23 +32,34 @@ const reducer = (state, action) => {
 };
 
 export default function Typeahead({ list }) {
-  const [{ suggestions, inputValue }, dispatch] = React.useReducer(reducer, {
+  const [
+    { suggestions, inputValue, suggestionsShown },
+    dispatch
+  ] = React.useReducer(reducer, {
     initialList: list,
     suggestions: [],
-    inputValue: ""
+    inputValue: "",
+    suggestionsShown: false
   });
 
   function changeHandler({ target }) {
-    dispatch({ type: "INPUT_VAL_CHANGE", value: target.value });
+    dispatch({ type: "INPUT_VAL_CHANGE", inputValue: target.value });
+  }
+
+  function suggestionSelected(selectionValue) {
+    dispatch({ type: "SUGGESTION_SELECTED", selectionValue });
   }
 
   return (
     <>
       <label htmlFor="car">Pick a car </label>
       <input id="car" value={inputValue} onChange={changeHandler} />
-      {suggestions.map((suggestion) => (
-        <div key={suggestion}>{suggestion}</div>
-      ))}
+      {suggestionsShown &&
+        suggestions.map((suggestion) => (
+          <div onClick={() => suggestionSelected(suggestion)} key={suggestion}>
+            {suggestion}
+          </div>
+        ))}
     </>
   );
 }
