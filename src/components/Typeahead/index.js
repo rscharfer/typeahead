@@ -3,10 +3,12 @@ import * as React from "react";
 const reducer = (state, action) => {
   switch (action.type) {
     case "INPUT_VAL_CHANGE": {
+      const regEx = new RegExp(`^${action.value}`, "i");
       return {
-        suggestions: state.suggestions.filter((suggestion) =>
-          suggestion.startsWith(action.value)
-        ),
+        ...state,
+        suggestions: action.value
+          ? state.initialList.filter((suggestion) => regEx.test(suggestion))
+          : [],
         inputValue: action.value
       };
     }
@@ -17,7 +19,8 @@ const reducer = (state, action) => {
 
 export default function Typeahead({ list }) {
   const [{ suggestions, inputValue }, dispatch] = React.useReducer(reducer, {
-    suggestions: list,
+    initialList: list,
+    suggestions: [],
     inputValue: ""
   });
 
@@ -30,7 +33,7 @@ export default function Typeahead({ list }) {
       <label htmlFor="car">Pick a car </label>
       <input id="car" value={inputValue} onChange={changeHandler} />
       {suggestions.map((suggestion) => (
-        <div>{suggestion}</div>
+        <div key={suggestion}>{suggestion}</div>
       ))}
     </>
   );
