@@ -10,17 +10,26 @@ import {
 const KEY_CODE_UP = 38;
 const KEY_CODE_DOWN = 40;
 const KEY_CODE_ENTER = 13;
+const KEY_CODE_ESCAPE = 27;
 
 const actions = {
   INPUT_VAL_CHANGE: "INPUT_VAL_CHANGE",
   SUGGESTION_SELECTED: "SUGGESTION_SELECTED",
   KEY_PRESS: "KEY_PRESS",
   KEY_DOWN_PRESS: "KEY_DOWN_PRESS",
-  ENTER_PRESS: "ENTER_PRESS"
+  ENTER_PRESS: "ENTER_PRESS",
+  INPUT_BLUR: "INPUT_BLUR",
+  ESCAPE_PRESS: "ESCAPE_PRESS"
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case actions.INPUT_BLUR: {
+      return { ...state, suggestionsShown: false };
+    }
+    case actions.ESCAPE_PRESS: {
+      return { ...state, suggestionsShown: false };
+    }
     case actions.ENTER_PRESS: {
       return {
         ...state,
@@ -92,11 +101,15 @@ export default function Typeahead({ list, onEnter = noop }) {
   });
 
   function changeHandler({ target }) {
-    dispatch({ type: "INPUT_VAL_CHANGE", inputValue: target.value });
+    dispatch({ type: actions.INPUT_VAL_CHANGE, inputValue: target.value });
   }
 
   function suggestionSelected(selectionValue) {
-    dispatch({ type: "SUGGESTION_SELECTED", selectionValue });
+    dispatch({ type: actions.SUGGESTION_SELECTED, selectionValue });
+  }
+
+  function blurHandler() {
+    dispatch({ type: actions.INPUT_BLUR });
   }
 
   function keyDownHandler({ keyCode }) {
@@ -108,6 +121,8 @@ export default function Typeahead({ list, onEnter = noop }) {
         selectedIndex === null ? inputValue : suggestions[selectedIndex];
 
       onEnter(val);
+    } else if (keyCode === KEY_CODE_ESCAPE) {
+      dispatch({ type: actions.ESCAPE_PRESS });
     }
   }
 
@@ -119,6 +134,7 @@ export default function Typeahead({ list, onEnter = noop }) {
         value={inputValue}
         onChange={changeHandler}
         onKeyDown={keyDownHandler}
+        onBlur={blurHandler}
       />
       <Suggestions>
         {suggestionsShown &&
