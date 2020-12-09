@@ -9,16 +9,29 @@ import {
 
 const KEY_CODE_UP = 38;
 const KEY_CODE_DOWN = 40;
+const KEY_CODE_ENTER = 13;
 
 const actions = {
   INPUT_VAL_CHANGE: "INPUT_VAL_CHANGE",
   SUGGESTION_SELECTED: "SUGGESTION_SELECTED",
   KEY_PRESS: "KEY_PRESS",
-  KEY_DOWN_PRESS: "KEY_DOWN_PRESS"
+  KEY_DOWN_PRESS: "KEY_DOWN_PRESS",
+  ENTER_PRESS: "ENTER_PRESS"
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case actions.ENTER_PRESS: {
+      return {
+        ...state,
+        inputValue:
+          state.selectedIndex === null
+            ? state.inputValue
+            : state.suggestions[state.selectedIndex],
+
+        suggestionsShown: false
+      };
+    }
     case actions.KEY_DOWN_PRESS: {
       const {
         selectedIndex,
@@ -39,15 +52,16 @@ const reducer = (state, action) => {
 
     case actions.INPUT_VAL_CHANGE: {
       const regEx = new RegExp(`^${action.inputValue}`, "i");
+      const newSuggestions = action.inputValue
+        ? state.initialList.filter((item) => regEx.test(item))
+        : [];
 
       return {
         ...state,
-        suggestions: action.inputValue
-          ? state.initialList.filter((suggestion) => regEx.test(suggestion))
-          : [],
+        suggestions: newSuggestions,
         inputValue: action.inputValue,
-        suggestionsShown: true,
-        selectedIndex: action.inputValue === "" ? null : state.selectedIndex
+        suggestionsShown: newSuggestions.length > 0,
+        selectedIndex: null
       };
     }
     case actions.SUGGESTION_SELECTED: {
@@ -63,7 +77,9 @@ const reducer = (state, action) => {
   }
 };
 
-export default function Typeahead({ list }) {
+function noop() {}
+
+export default function Typeahead({ list, onEnter = noop }) {
   const [
     { suggestions, inputValue, suggestionsShown, selectedIndex },
     dispatch
@@ -86,6 +102,13 @@ export default function Typeahead({ list }) {
   function keyDownHandler({ keyCode }) {
     if (keyCode === KEY_CODE_DOWN) dispatch({ type: actions.KEY_DOWN_PRESS });
     else if (keyCode === KEY_CODE_UP) dispatch({ type: actions.KEY_UP_PRESS });
+    else if (keyCode === KEY_CODE_ENTER) {
+      dispatch({ type: actions.ENTER_PRESS });
+      const val =
+        selectedIndex === null ? inputValue : suggestions[selectedIndex];
+
+      onEnter(val);
+    }
   }
 
   return (

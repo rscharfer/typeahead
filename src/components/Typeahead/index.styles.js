@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
-const COLOR_1 = "teal";
-const COLOR_2 = "#dddddd";
-const COLOR_3 = "#404040";
+const COLOR_1 = "teal"; // teal
+const COLOR_2 = "#dddddd"; // light gray
+const COLOR_3 = "#404040"; // dark gray
+const COLOR_4 = "#e0f2f1"; // very light teal - almost white
 
 const FONT_SIZE = "18px";
 const HEIGHT = "20px";
@@ -45,6 +46,6 @@ export const Suggestion = styled.div`
   color: ${COLOR_3};
 
   &:hover {
-    background-color: ${COLOR_2};
+    background-color: ${COLOR_4};
   }
 `;
