@@ -1,5 +1,11 @@
 import * as React from "react";
-import { Suggestion } from "./index.styles";
+import {
+  Suggestion,
+  Container,
+  Label,
+  Input,
+  Suggestions
+} from "./index.styles";
 
 const KEY_CODE_UP = 38;
 const KEY_CODE_DOWN = 40;
@@ -48,7 +54,8 @@ const reducer = (state, action) => {
       return {
         ...state,
         suggestionsShown: false,
-        inputValue: action.selectionValue
+        inputValue: action.selectionValue,
+        selectedIndex: null
       };
     }
     default:
@@ -82,24 +89,26 @@ export default function Typeahead({ list }) {
   }
 
   return (
-    <>
-      <label htmlFor="car">Pick a car </label>
-      <input
+    <Container>
+      <Label htmlFor="car">Pick a car:</Label>
+      <Input
         id="car"
         value={inputValue}
         onChange={changeHandler}
         onKeyDown={keyDownHandler}
       />
-      {suggestionsShown &&
-        suggestions.map((suggestion, index) => (
-          <Suggestion
-            onClick={() => suggestionSelected(suggestion)}
-            key={suggestion}
-            isSelected={index === selectedIndex}
-          >
-            {suggestion}
-          </Suggestion>
-        ))}
-    </>
+      <Suggestions>
+        {suggestionsShown &&
+          suggestions.map((suggestion, index) => (
+            <Suggestion
+              onClick={() => suggestionSelected(suggestion)}
+              key={suggestion}
+              isSelected={index === selectedIndex}
+            >
+              {suggestion}
+            </Suggestion>
+          ))}
+      </Suggestions>
+    </Container>
   );
 }
