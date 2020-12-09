@@ -65,7 +65,10 @@ const carBrands = [
 const rootElement = document.getElementById("root");
 ReactDOM.render(
   <React.StrictMode>
-    <Typeahead list={carBrands} />
+    <Typeahead
+      list={carBrands}
+      onEnter={(val) => console.log(`${val} was entered!!`)}
+    />
   </React.StrictMode>,
   rootElement
 );
